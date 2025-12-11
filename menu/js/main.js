@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8080/api';
+const API_URL = window.location.origin + '/api';
 
 // Verificar si hay sesión activa
 window.addEventListener('DOMContentLoaded', () => {

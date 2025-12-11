@@ -33,7 +33,7 @@ app.register_blueprint(usuario_controller)
 # --- HOME: sirve /inicio/index.html ---
 @app.route("/")
 def home():
-    return send_from_directory("inicio", "index.html")
+    return send_from_directory("../inicio", "index.html")
 
 
 # --- RUTAS PARA SERVIR TODAS LAS CARPETAS DEL FRONTEND ---
@@ -50,7 +50,11 @@ def serve_static(path):
     for folder in allowed_folders:
         if path.startswith(folder + "/"):
             filepath = path[len(folder) + 1:]  # Ej: menu/archivo.css → archivo.css
-            return send_from_directory(folder, filepath)
+            return send_from_directory(f"../{folder}", filepath)
+    
+    # Servir azure.png desde raíz
+    if path == "azure.png":
+        return send_from_directory("..", "azure.png")
 
     return "Not found", 404
 
