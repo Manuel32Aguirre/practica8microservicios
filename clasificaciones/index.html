@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificaciones - Sigue al Líder</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Clasificaciones</h1>
+            <p class="subtitle">Los mejores jugadores de Sigue al Líder</p>
+        </div>
+
+        <div id="errorContainer"></div>
+        <div id="loadingContainer" class="loading">Cargando clasificaciones...</div>
+
+        <table class="rankings-table" id="rankingsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Usuario</th>
+                    <th>Puntuación</th>
+                </tr>
+            </thead>
+            <tbody id="rankingsBody">
+                <!-- Los datos se cargarán aquí -->
+            </tbody>
+        </table>
+
+        <div id="noDataContainer" class="no-data" style="display: none;">
+            No hay clasificaciones disponibles
+        </div>
+
+        <a href="../menu/index.html" class="back-button">← Volver al Menú</a>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

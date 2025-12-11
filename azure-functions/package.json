@@ -1,0 +1,18 @@
+{
+  "name": "sigue-al-lider-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API para Sigue al Líder",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "mysql2": "^3.6.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@azure/functions-core-tools": "^4.0.5"
+  }
+}
