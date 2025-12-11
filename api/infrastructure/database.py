@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # CREDENCIALES CORRECTAS PARA AZURE MYSQL FLEXIBLE SERVER
-DB_USER = "manuel@practica8server"  # ← ESTA ES LA CLAVE
+DB_USER = "manuel"  # ← ESTA ES LA CLAVE
 DB_PASSWORD = "Practica8"
 DB_HOST = "practica8server.mysql.database.azure.com"
 DB_PORT = 3306
