@@ -1,10 +1,8 @@
-const API_BASE_URL = 'https://YOUR_AZURE_FUNCTION_URL.azurewebsites.net/api';
-
 const registerForm = document.getElementById('registerForm');
 const errorMessage = document.getElementById('errorMessage');
 const successMessage = document.getElementById('successMessage');
 
-registerForm.addEventListener('submit', async (e) => {
+registerForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
     const username = document.getElementById('username').value;
@@ -32,31 +30,33 @@ registerForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            showSuccess('Cuenta creada exitosamente. Redirigiendo...');
-            
-            // Redirigir al login después de 2 segundos
-            setTimeout(() => {
-                window.location.href = '../inicio/index.html';
-            }, 2000);
-        } else {
-            showError(data.error || 'Error al crear la cuenta');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showError('Error al conectar con el servidor');
+    // Obtener usuarios del localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Verificar si el usuario ya existe
+    if (users.find(u => u.usuario === username)) {
+        showError('El usuario ya existe');
+        return;
     }
+
+    // Crear nuevo usuario
+    const newUser = {
+        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+        usuario: username,
+        contrasena: password,
+        puntuacion: 0,
+        fecha_registro: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+
+    showSuccess('Cuenta creada exitosamente. Redirigiendo...');
+    
+    // Redirigir al login después de 2 segundos
+    setTimeout(() => {
+        window.location.href = '../inicio/index.html';
+    }, 2000);
 });
 
 function showError(message) {

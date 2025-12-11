@@ -1,9 +1,7 @@
-const API_BASE_URL = 'https://YOUR_AZURE_FUNCTION_URL.azurewebsites.net/api';
-
 const loginForm = document.getElementById('loginForm');
 const errorMessage = document.getElementById('errorMessage');
 
-loginForm.addEventListener('submit', async (e) => {
+loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
     const username = document.getElementById('username').value;
@@ -15,30 +13,21 @@ loginForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password })
-        });
+    // Obtener usuarios del localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Buscar usuario
+    const user = users.find(u => u.usuario === username && u.contrasena === password);
 
-        const data = await response.json();
-
-        if (response.ok) {
-            // Guardar información del usuario
-            localStorage.setItem('usuario', username);
-            localStorage.setItem('userId', data.userId);
-            
-            // Redirigir al menú principal
-            window.location.href = '../menu/index.html';
-        } else {
-            showError(data.error || 'Usuario o contraseña incorrectos');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showError('Error al conectar con el servidor');
+    if (user) {
+        // Guardar información del usuario
+        localStorage.setItem('usuario', username);
+        localStorage.setItem('userId', user.id);
+        
+        // Redirigir al menú principal
+        window.location.href = '../menu/index.html';
+    } else {
+        showError('Usuario o contraseña incorrectos');
     }
 });
 

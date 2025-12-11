@@ -1,5 +1,5 @@
 -- ============================================
--- Base de Datos: Sigue al Líder
+-- Base de Datos: Simon Dice
 -- Descripción: Schema para el juego de memoria
 -- ============================================
 

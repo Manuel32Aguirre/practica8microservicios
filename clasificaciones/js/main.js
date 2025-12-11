@@ -1,36 +1,31 @@
-const API_BASE_URL = 'https://YOUR_AZURE_FUNCTION_URL.azurewebsites.net/api';
-
 const currentUser = localStorage.getItem('usuario');
 
 window.addEventListener('DOMContentLoaded', () => {
     loadRankings();
 });
 
-async function loadRankings() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/clasificaciones`);
-        
-        if (!response.ok) {
-            throw new Error('Error al cargar clasificaciones');
-        }
+function loadRankings() {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    document.getElementById('loadingContainer').style.display = 'none';
 
-        const data = await response.json();
-        
-        document.getElementById('loadingContainer').style.display = 'none';
-
-        if (data.length === 0) {
-            document.getElementById('noDataContainer').style.display = 'block';
-            return;
-        }
-
-        displayRankings(data);
-        document.getElementById('rankingsTable').style.display = 'table';
-
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('loadingContainer').style.display = 'none';
-        showError('No se pudieron cargar las clasificaciones. Verifica que el servidor esté funcionando.');
+    if (users.length === 0) {
+        document.getElementById('noDataContainer').style.display = 'block';
+        return;
     }
+
+    // Ordenar por puntuación
+    const rankings = users
+        .filter(u => u.puntuacion > 0)
+        .sort((a, b) => b.puntuacion - a.puntuacion);
+
+    if (rankings.length === 0) {
+        document.getElementById('noDataContainer').style.display = 'block';
+        return;
+    }
+
+    displayRankings(rankings);
+    document.getElementById('rankingsTable').style.display = 'table';
 }
 
 function displayRankings(rankings) {

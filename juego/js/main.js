@@ -1,5 +1,3 @@
-const API_BASE_URL = 'https://YOUR_AZURE_FUNCTION_URL.azurewebsites.net/api';
-
 // Variables del juego
 let username = '';
 let sequence = [];
@@ -94,18 +92,12 @@ window.addEventListener('DOMContentLoaded', () => {
     startGame();
 });
 
-async function loadUserScore(userId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/usuario/${userId}`);
-        if (response.ok) {
-            const data = await response.json();
-            // Inicializar el puntaje si existe uno mejor
-            if (data.puntuacion) {
-                leaderboard.push({ player: username, score: data.puntuacion });
-            }
-        }
-    } catch (error) {
-        console.error('Error al cargar puntuación:', error);
+function loadUserScore(userId) {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.id == userId);
+    
+    if (user && user.puntuacion) {
+        leaderboard.push({ player: username, score: user.puntuacion });
     }
 }
 
@@ -240,27 +232,19 @@ async function gameOver() {
     }, 1500);
 }
 
-async function saveScore() {
+function saveScore() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/actualizar-puntuacion`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: userId,
-                puntuacion: score
-            })
-        });
-
-        if (!response.ok) {
-            console.error('Error al guardar puntuación');
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const userIndex = users.findIndex(u => u.id == userId);
+    
+    if (userIndex !== -1) {
+        // Solo actualizar si la nueva puntuación es mayor
+        if (score > users[userIndex].puntuacion) {
+            users[userIndex].puntuacion = score;
+            localStorage.setItem('users', JSON.stringify(users));
         }
-    } catch (error) {
-        console.error('Error:', error);
     }
 }
 
