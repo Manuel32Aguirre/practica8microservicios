@@ -2,36 +2,34 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 import logging
-import ssl  # <--- IMPORTANTE: Agrega esto
+import ssl
 
-# Configuración básica
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Credenciales (Tal cual las tienes)
-DB_USER = "manuel"
-DB_PASSWORD = "Practica8" # Recuerda usar la real que pusiste en Azure
+# CREDENCIALES CORRECTAS PARA AZURE MYSQL FLEXIBLE SERVER
+DB_USER = "manuel@practica8server"  # ← ESTA ES LA CLAVE
+DB_PASSWORD = "Practica8"
 DB_HOST = "practica8server.mysql.database.azure.com"
 DB_PORT = 3306
 DB_NAME = "simondice"
 
-# URL de conexión
-MYSQL_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# URL con SSL habilitado
+MYSQL_URL = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}?ssl=true"
+)
 
-# --- CORRECCIÓN SSL PARA AZURE + PYMYSQL ---
-# Creamos un contexto SSL que no verifique estrictamente el certificado (Ideal para desarrollo)
+# Configuración SSL (necesaria)
 ssl_ctx = ssl.create_default_context()
 ssl_ctx.check_hostname = False
 ssl_ctx.verify_mode = ssl.CERT_NONE
 
-# Le pasamos ese contexto a la conexión
-connect_args = {
-    "ssl": ssl_ctx
-}
+connect_args = {"ssl": ssl_ctx}
 
 engine = create_engine(
-    MYSQL_URL, 
-    echo=True, 
+    MYSQL_URL,
+    echo=True,
     pool_recycle=3600,
     connect_args=connect_args
 )
