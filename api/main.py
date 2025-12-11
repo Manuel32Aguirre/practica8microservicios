@@ -10,39 +10,52 @@ from flask_cors import CORS
 from infrastructure.controllers.UsuarioController import usuario_controller
 from infrastructure.database import engine
 from domain.entity.Usuario import Base
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
 # Enable CORS for all routes
 CORS(app)
 
-# Crear las tablas si no existen
-Base.metadata.create_all(engine)
+# Crear tablas sin romper el arranque
+try:
+    Base.metadata.create_all(engine)
+except Exception as e:
+    logger.error(f"Error creando tablas en Azure: {e}")
 
-# Registrar el controlador
+# Registrar el blueprint
 app.register_blueprint(usuario_controller)
 
-# Ruta para servir el frontend
-@app.route('/')
+
+# --- HOME: sirve /inicio/index.html ---
+@app.route("/")
 def home():
-    return send_from_directory('../inicio', 'index.html')
+    return send_from_directory("inicio", "index.html")
 
-@app.route('/<path:path>')
+
+# --- RUTAS PARA SERVIR TODAS LAS CARPETAS DEL FRONTEND ---
+@app.route("/<path:path>")
 def serve_static(path):
-    """Sirve archivos estáticos del frontend."""
-    # Determinar la carpeta según la ruta
-    if path.startswith('inicio/'):
-        return send_from_directory('../inicio', path[7:])
-    elif path.startswith('registro/'):
-        return send_from_directory('../registro', path[9:])
-    elif path.startswith('menu/'):
-        return send_from_directory('../menu', path[5:])
-    elif path.startswith('clasificaciones/'):
-        return send_from_directory('../clasificaciones', path[16:])
-    elif path.startswith('juego/'):
-        return send_from_directory('../juego', path[6:])
-    else:
-        return "Not found", 404
+    """
+    Sirve archivos desde las carpetas reales del proyecto:
+    inicio/, registro/, menu/, juego/, clasificaciones/
+    """
 
+    # Listado de carpetas válidas del frontend
+    allowed_folders = ["inicio", "registro", "menu", "juego", "clasificaciones"]
+
+    for folder in allowed_folders:
+        if path.startswith(folder + "/"):
+            filepath = path[len(folder) + 1:]  # Ej: menu/archivo.css → archivo.css
+            return send_from_directory(folder, filepath)
+
+    return "Not found", 404
+
+
+# --- SERVER (PUERTO DINÁMICO DE AZURE) ---
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    port = int(os.environ.get("PORT", 8080))  # ← OBLIGATORIO en Azure App Service
+    app.run(host="0.0.0.0", port=port, debug=True)
