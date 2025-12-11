@@ -5,4 +5,5 @@ PyMySQL==1.1.0
 bcrypt==4.1.2
 python-dotenv==1.0.0
 gunicorn==21.2.0
-cryptography
+cryptography==41.0.7
+
