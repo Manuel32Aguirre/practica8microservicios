@@ -1,6 +1,6 @@
-# Sigue al Líder - Juego de Memoria
+# Simón Dice - Juego Web
 
-Juego web de memoria donde debes repetir secuencias de botones cada vez más largas.
+Aplicación web del clásico juego "Simón Dice" con sistema de registro, autenticación y clasificaciones.
 
 ## Estructura del Proyecto
 
@@ -36,140 +36,247 @@ Practica8Microservicios/
 │   ├── js/
 │   │   └── main.js
 │   └── index.html
-├── database/              # Base de datos
-│   └── schema.sql
-└── azure-functions/       # API Backend
-    ├── shared/
-    ├── register/
-    ├── login/
-    ├── usuario/
-    ├── clasificaciones/
-    ├── actualizarPuntuacion/
-    └── README.md
+└── database/              # Base de datos (schema de referencia)
+    └── schema.sql
 ```
 
-## Instalación y Configuración
+## 🎮 Características
+
+- Sistema de registro e inicio de sesión con bcrypt
+- Juego Simón Dice interactivo con sonidos
+- Tabla de clasificaciones global
+- Puntuación guardada automáticamente
+- Backend Python + Flask + MySQL
+
+## 📋 Prerrequisitos
+
+- Python 3.8+
+- MySQL 8.0+
+- pip (gestor de paquetes de Python)
+
+## 🚀 Instalación
 
 ### 1. Base de Datos
 
-```bash
-# Crear la base de datos
-mysql -u root -p -e "CREATE DATABASE sigue_al_lider;"
-
-# Importar el schema
-mysql -u root -p sigue_al_lider < database/schema.sql
-```
-
-### 2. Azure Functions (Backend)
+Crear la base de datos ejecutando el script SQL:
 
 ```bash
-cd azure-functions
-npm install
+mysql -u root -p < database/schema.sql
 ```
 
-Configura `local.settings.json` con tus credenciales de base de datos.
+O manualmente en MySQL:
+
+```sql
+CREATE DATABASE simon_dice;
+USE simon_dice;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    puntuacion INT DEFAULT 0,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_ultima_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+### 2. API Backend
+
+Instalar dependencias de Python:
 
 ```bash
-# Ejecutar en modo desarrollo
-npm start
+cd api
+pip install -r requirements.txt
 ```
 
-### 3. Frontend
-
-Las páginas son HTML estático. Puedes usar cualquier servidor web:
+Configurar variables de entorno (crear archivo `.env`):
 
 ```bash
-# Opción 1: Live Server en VS Code
-# Abre inicio/index.html con Live Server
-
-# Opción 2: http-server
-npx http-server -p 8080
-
-# Opción 3: Python
-python -m http.server 8080
+DB_USER=root
+DB_PASSWORD=tu_contraseña
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=simon_dice
 ```
 
-### 4. Configurar URL de API
+Ejecutar el servidor Flask:
 
-En cada archivo `js/main.js`, actualiza la constante `API_BASE_URL`:
-
-```javascript
-const API_BASE_URL = 'http://localhost:7071/api';  // Local
-// o
-const API_BASE_URL = 'https://tu-app.azurewebsites.net/api';  // Producción
+```bash
+python main.py
 ```
 
-## Características
+El servidor estará disponible en `http://localhost:5000`
 
-- Sistema de usuarios con registro e inicio de sesión
-- Contraseñas hasheadas con bcrypt
-- Juego de memoria con 8 botones de colores
-- Sonidos únicos para cada botón
-- Sistema de puntuación
-- Clasificaciones globales
-- Responsive design
-- Sin emojis en los textos del juego
+## 🔌 API Endpoints
 
-## Tecnologías
+### POST /api/register
+Registrar nuevo usuario.
 
-### Frontend
+**Body:**
+```json
+{
+  "usuario": "string",
+  "contrasena": "string"
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "message": "Usuario registrado exitosamente",
+  "userId": 1,
+  "usuario": "string"
+}
+```
+
+### POST /api/login
+Iniciar sesión.
+
+**Body:**
+```json
+{
+  "usuario": "string",
+  "contrasena": "string"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Login exitoso",
+  "userId": 1,
+  "usuario": "string"
+}
+```
+
+### GET /api/usuario/{id}
+Obtener información de un usuario.
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "usuario": "string",
+  "puntuacion": 100,
+  "fecha_registro": "2024-01-01T00:00:00",
+  "fecha_ultima_actualizacion": "2024-01-02T00:00:00"
+}
+```
+
+### GET /api/clasificaciones
+Obtener top 10 jugadores.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "usuario": "string",
+    "puntuacion": 100,
+    "fecha_ultima_actualizacion": "2024-01-02T00:00:00"
+  }
+]
+```
+
+### POST /api/actualizar-puntuacion
+Actualizar puntuación de un usuario (solo si es mayor).
+
+**Body:**
+```json
+{
+  "userId": 1,
+  "puntuacion": 150
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Puntuación actualizada",
+  "puntuacion": 150
+}
+```
+
+## 🎯 Uso
+
+1. **Iniciar el servidor backend:**
+   ```bash
+   cd api
+   python main.py
+   ```
+
+2. **Abrir la aplicación:**
+   - Navegar a `http://localhost:5000/inicio/index.html`
+
+3. **Registrarse:**
+   - Crear una cuenta con usuario y contraseña
+   - Contraseña debe tener al menos 4 caracteres
+
+4. **Jugar:**
+   - Iniciar sesión
+   - Click en "Jugar" desde el menú
+   - Repetir la secuencia de colores
+   - La puntuación se guarda automáticamente
+
+5. **Ver clasificaciones:**
+   - Click en "Clasificaciones" desde el menú
+   - Ver top 10 jugadores
+
+## 🔒 Seguridad
+
+- Las contraseñas se hashean con bcrypt (10 rounds)
+- Validación de datos en frontend y backend
+- Usuarios únicos (campo `usuario` con constraint UNIQUE)
+- Puntuaciones solo se actualizan si son mayores
+
+## 🌐 Deployment Azure (Opcional)
+
+### Configurar Azure MySQL
+
+1. Crear Azure Database for MySQL
+2. Configurar firewall rules
+3. Actualizar variables de entorno:
+
+```bash
+DB_HOST=tu-servidor.mysql.database.azure.com
+DB_USER=tu-usuario@tu-servidor
+DB_PASSWORD=tu-contraseña
+DB_NAME=simon_dice
+```
+
+### Deploy Flask App
+
+```bash
+az webapp up --name simon-dice-app --resource-group tu-grupo
+```
+
+## 🛠️ Tecnologías
+
+**Frontend:**
 - HTML5
-- CSS3 (Gradientes, animaciones)
+- CSS3
 - JavaScript Vanilla
 - Web Audio API
 
-### Backend
-- Azure Functions (Node.js)
-- MySQL
-- bcryptjs
+**Backend:**
+- Python 3.x
+- Flask 3.0.0
+- SQLAlchemy 2.0.23
+- PyMySQL 1.1.0
+- bcrypt 4.1.2
+- Flask-CORS 4.0.0
 
-## Base de Datos
+**Base de Datos:**
+- MySQL 8.0+
 
-### Tabla: usuarios
+## 📝 Arquitectura
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | INT AUTO_INCREMENT | ID único del usuario |
-| usuario | VARCHAR(50) | Nombre de usuario único |
-| contrasena | VARCHAR(255) | Contraseña hasheada |
-| puntuacion | INT | Mejor puntuación |
-| fecha_registro | TIMESTAMP | Fecha de creación |
-| fecha_ultima_actualizacion | TIMESTAMP | Última actualización |
+Arquitectura de tres capas (Domain-Driven Design):
 
-## API Endpoints
+1. **Domain Layer**: Entidades y repositorios abstractos
+2. **Application Layer**: Lógica de negocio (servicios)
+3. **Infrastructure Layer**: Controllers (Flask) y Database (SQLAlchemy)
 
-- `POST /api/register` - Registrar usuario
-- `POST /api/login` - Iniciar sesión
-- `GET /api/usuario/{userId}` - Obtener datos de usuario
-- `GET /api/clasificaciones` - Obtener clasificaciones
-- `POST /api/actualizar-puntuacion` - Actualizar puntuación
+## 👤 Autor
 
-## Flujo de la Aplicación
-
-1. Usuario accede a `inicio/index.html`
-2. Puede ir a `registro/index.html` para crear cuenta
-3. Al iniciar sesión, se guarda en localStorage
-4. Redirige a `menu/index.html`
-5. Desde el menú puede:
-   - Jugar (`juego/index.html`)
-   - Ver clasificaciones (`clasificaciones/index.html`)
-   - Cerrar sesión
-6. Al terminar el juego, se guarda la puntuación si es récord
-
-## Despliegue
-
-### Frontend
-Puede desplegarse en:
-- Azure Static Web Apps
-- GitHub Pages
-- Netlify
-- Vercel
-
-### Backend
-```bash
-func azure functionapp publish nombre-de-tu-app
-```
-
-## Licencia
-
-MIT
+Víctor - Práctica 8 Microservicios

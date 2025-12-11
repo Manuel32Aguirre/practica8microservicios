@@ -1,3 +1,5 @@
+const API_URL = 'http://localhost:8080/api';
+
 // Variables del juego
 let username = '';
 let sequence = [];
@@ -92,12 +94,17 @@ window.addEventListener('DOMContentLoaded', () => {
     startGame();
 });
 
-function loadUserScore(userId) {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.id == userId);
-    
-    if (user && user.puntuacion) {
-        leaderboard.push({ player: username, score: user.puntuacion });
+async function loadUserScore(userId) {
+    try {
+        const response = await fetch(`${API_URL}/usuario/${userId}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.puntuacion) {
+                leaderboard.push({ player: username, score: data.puntuacion });
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar puntuación:', error);
     }
 }
 
@@ -232,19 +239,27 @@ async function gameOver() {
     }, 1500);
 }
 
-function saveScore() {
+async function saveScore() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userIndex = users.findIndex(u => u.id == userId);
-    
-    if (userIndex !== -1) {
-        // Solo actualizar si la nueva puntuación es mayor
-        if (score > users[userIndex].puntuacion) {
-            users[userIndex].puntuacion = score;
-            localStorage.setItem('users', JSON.stringify(users));
+    try {
+        const response = await fetch(`${API_URL}/actualizar-puntuacion`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: parseInt(userId),
+                puntuacion: score
+            })
+        });
+
+        if (!response.ok) {
+            console.error('Error al guardar puntuación');
         }
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 

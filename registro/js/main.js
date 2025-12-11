@@ -1,62 +1,62 @@
+const API_URL = 'http://localhost:8080/api';
+
 const registerForm = document.getElementById('registerForm');
 const errorMessage = document.getElementById('errorMessage');
 const successMessage = document.getElementById('successMessage');
 
-registerForm.addEventListener('submit', (e) => {
+registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const usuario = document.getElementById('username').value;
+    const contrasena = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
     // Validación básica
-    if (!username || !password || !confirmPassword) {
+    if (!usuario || !contrasena || !confirmPassword) {
         showError('Por favor completa todos los campos');
         return;
     }
 
-    if (username.length < 3) {
+    if (usuario.length < 3) {
         showError('El usuario debe tener al menos 3 caracteres');
         return;
     }
 
-    if (password.length < 4) {
+    if (contrasena.length < 4) {
         showError('La contraseña debe tener al menos 4 caracteres');
         return;
     }
 
-    if (password !== confirmPassword) {
+    if (contrasena !== confirmPassword) {
         showError('Las contraseñas no coinciden');
         return;
     }
 
-    // Obtener usuarios del localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    // Verificar si el usuario ya existe
-    if (users.find(u => u.usuario === username)) {
-        showError('El usuario ya existe');
-        return;
+    try {
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ usuario, contrasena })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showSuccess('Cuenta creada exitosamente. Redirigiendo...');
+            
+            // Redirigir al login después de 2 segundos
+            setTimeout(() => {
+                window.location.href = '../inicio/index.html';
+            }, 2000);
+        } else {
+            showError(data.error || 'Error al crear la cuenta');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Error al conectar con el servidor');
     }
-
-    // Crear nuevo usuario
-    const newUser = {
-        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
-        usuario: username,
-        contrasena: password,
-        puntuacion: 0,
-        fecha_registro: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    showSuccess('Cuenta creada exitosamente. Redirigiendo...');
-    
-    // Redirigir al login después de 2 segundos
-    setTimeout(() => {
-        window.location.href = '../inicio/index.html';
-    }, 2000);
 });
 
 function showError(message) {

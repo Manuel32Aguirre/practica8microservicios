@@ -1,3 +1,5 @@
+const API_URL = 'http://localhost:8080/api';
+
 // Verificar si hay sesión activa
 window.addEventListener('DOMContentLoaded', () => {
     const usuario = localStorage.getItem('usuario');
@@ -16,12 +18,15 @@ window.addEventListener('DOMContentLoaded', () => {
     loadUserScore(userId);
 });
 
-function loadUserScore(userId) {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.id == userId);
-    
-    if (user) {
-        document.getElementById('bestScore').textContent = user.puntuacion || 0;
+async function loadUserScore(userId) {
+    try {
+        const response = await fetch(`${API_URL}/usuario/${userId}`);
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('bestScore').textContent = data.puntuacion || 0;
+        }
+    } catch (error) {
+        console.error('Error al cargar puntuación:', error);
     }
 }
 
