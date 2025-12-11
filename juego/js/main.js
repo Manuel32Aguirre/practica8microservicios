@@ -17,16 +17,17 @@ let leaderboard = [
     { player: 'CPU-Inicial', score: 10 }
 ];
 
-// Frecuencias musicales para cada botón
+// Frecuencias musicales para cada botón (9 botones, índices 0-8)
 const frequencies = [
-    261.63, // C (Do)
-    293.66, // D (Re)
-    329.63, // E (Mi)
-    349.23, // F (Fa)
-    392.00, // G (Sol)
-    440.00, // A (La)
-    493.88, // B (Si)
-    523.25  // C (Do octava alta)
+    261.63, // C (Do) - Botón 1
+    293.66, // D (Re) - Botón 2
+    329.63, // E (Mi) - Botón 3
+    349.23, // F (Fa) - Botón 4
+    392.00, // G (Sol) - Centro (no se usa)
+    440.00, // A (La) - Botón 5
+    493.88, // B (Si) - Botón 6
+    523.25, // C (Do octava alta) - Botón 7
+    587.33  // D (Re octava alta) - Botón 8
 ];
 
 // Web Audio API
