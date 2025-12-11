@@ -9,14 +9,6 @@ let score = 0;
 let canPlay = false;
 let isShowingSequence = false;
 
-// Tabla de líderes inicial (CPU)
-let leaderboard = [
-    { player: 'CPU-Master', score: 50 },
-    { player: 'CPU-Pro', score: 35 },
-    { player: 'CPU-Novato', score: 20 },
-    { player: 'CPU-Inicial', score: 10 }
-];
-
 // Frecuencias musicales para cada botón (9 botones, índices 0-8)
 const frequencies = [
     261.63, // C (Do) - Botón 1
@@ -96,17 +88,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadUserScore(userId) {
-    try {
-        const response = await fetch(`${API_URL}/usuario/${userId}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.puntuacion) {
-                leaderboard.push({ player: username, score: data.puntuacion });
-            }
-        }
-    } catch (error) {
-        console.error('Error al cargar puntuación:', error);
-    }
+    // Ya no se necesita cargar puntuación previa para mostrar
+    // La puntuación actual se muestra al final del juego
 }
 
 // Función para iniciar el juego
@@ -283,37 +266,6 @@ async function saveScore() {
 // Mostrar resultados
 function showResults() {
     document.getElementById('final-score').textContent = score;
-    
-    // Agregar puntuación del jugador a la tabla
-    leaderboard.push({ player: username, score: score, isPlayer: true });
-    
-    // Ordenar por puntuación
-    leaderboard.sort((a, b) => b.score - a.score);
-    
-    // Generar tabla
-    const tbody = document.getElementById('leaderboard-body');
-    tbody.innerHTML = '';
-    
-    const topScores = leaderboard.slice(0, 10);
-    const isNewRecord = topScores[0].isPlayer && topScores[0].score === score;
-    
-    topScores.forEach((entry, index) => {
-        const row = document.createElement('tr');
-        if (entry.isPlayer && entry.score === score) {
-            row.classList.add('player-score');
-            if (isNewRecord) {
-                row.classList.add('new-record');
-            }
-        }
-        
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${entry.player}${entry.isPlayer ? ' (Tú)' : ''}</td>
-            <td>${entry.score}</td>
-        `;
-        tbody.appendChild(row);
-    });
-    
     document.getElementById('results-section').style.display = 'block';
 }
 
