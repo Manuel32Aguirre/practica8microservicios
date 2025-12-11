@@ -153,17 +153,24 @@ function nextRound() {
 // Mostrar secuencia
 async function showSequence() {
     isShowingSequence = true;
-    const buttons = document.querySelectorAll('.game-button');
+    canPlay = false;
     
-    for (let i = 0; i < sequence.length; i++) {
-        const index = sequence[i];
-        await highlightButton(buttons[index], index);
-        await sleep(200);
+    try {
+        const buttons = document.querySelectorAll('.game-button');
+        
+        for (let i = 0; i < sequence.length; i++) {
+            const index = sequence[i];
+            await highlightButton(buttons[index], index);
+            await sleep(200);
+        }
+    } catch (error) {
+        console.error('Error mostrando secuencia:', error);
+    } finally {
+        // Asegurarse de que siempre se libere el bloqueo
+        isShowingSequence = false;
+        canPlay = true;
+        document.getElementById('game-message').textContent = 'Tu turno - Repite la secuencia';
     }
-    
-    isShowingSequence = false;
-    canPlay = true;
-    document.getElementById('game-message').textContent = 'Tu turno - Repite la secuencia';
 }
 
 // Iluminar botón
@@ -186,12 +193,19 @@ function sleep(ms) {
 
 // Manejar clic en botón del juego
 document.getElementById('game-grid').addEventListener('click', async (e) => {
-    if (!canPlay || isShowingSequence) return;
+    // Validar que se puede jugar
+    if (!canPlay || isShowingSequence) {
+        console.log('No se puede jugar aún:', { canPlay, isShowingSequence });
+        return;
+    }
     
     const button = e.target.closest('.game-button');
     if (!button || button.dataset.index === '4') return;
     
     const index = parseInt(button.dataset.index);
+    
+    // Deshabilitar temporalmente para evitar clicks múltiples
+    canPlay = false;
     
     // Iluminar botón clickeado
     button.classList.add('active');
@@ -212,14 +226,16 @@ document.getElementById('game-grid').addEventListener('click', async (e) => {
     
     // Si completó la secuencia correctamente
     if (playerSequence.length === sequence.length) {
-        canPlay = false;
         score += level * 10;
         level++;
         updateDisplay();
         
-        document.getElementById('game-message').textContent = 'Correcto - Siguiente nivel...';
+        document.getElementById('game-message').textContent = '¡Correcto! - Siguiente nivel...';
         
         setTimeout(() => nextRound(), 1500);
+    } else {
+        // Habilitar de nuevo para el siguiente click
+        canPlay = true;
     }
 });
 
