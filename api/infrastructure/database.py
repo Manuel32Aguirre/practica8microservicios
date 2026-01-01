@@ -1,18 +1,18 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import os
+import sys, os
 import logging
 import ssl
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# CREDENCIALES CORRECTAS PARA AZURE MYSQL FLEXIBLE SERVER
-DB_USER = "manuel"  # ← ESTA ES LA CLAVE
-DB_PASSWORD = "Practica8"
-DB_HOST = "practica8server.mysql.database.azure.com"
-DB_PORT = 3306
-DB_NAME = "simondice"
+# AHORA EL CÓDIGO BUSCA PRIMERO EN AZURE, SI NO ENCUENTRA NADA USA EL DEFAULT
+DB_USER = os.getenv("DB_USER", "manuel")
+DB_PASSWORD = os.getenv("DB_PASS", "Practica8")
+DB_HOST = os.getenv("DB_HOST", "practica8db.mysql.database.azure.com") # <--- AQUÍ EL CAMBIO CLAVE
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME", "simondice")
 
 # URL con SSL habilitado
 MYSQL_URL = (
@@ -20,7 +20,7 @@ MYSQL_URL = (
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}?ssl=true"
 )
 
-# Configuración SSL (necesaria)
+# Configuración SSL (necesaria para Azure Flexible Server)
 ssl_ctx = ssl.create_default_context()
 ssl_ctx.check_hostname = False
 ssl_ctx.verify_mode = ssl.CERT_NONE
